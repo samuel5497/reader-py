@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request
 from pypdf import PdfReader
-from base64 import b64decode
-import os
-import uuid
+from tools.pdf_tools import extract_tables_from_pdf, convert_tables_to_json, save_file_into_server_from_request, delete_file_from_server
 
 app = Flask(__name__)
 
@@ -17,36 +15,13 @@ def show():
     }
 
 
-@app.route("/api/v1/link/tools", methods=['POST'])
+@app.route("/api/v1/link/tools/simple-extraction", methods=['POST'])
 def store():
     request_json = request.get_json()
-    request_data = request_json['data']
-    object_file = request_data['file']
-
-    b64 = object_file['b64']
-    filename = object_file['name']
-    mimetype = object_file['mimetype']
-
-    # Decode the Base64 string, making sure that it contains only valid characters
-    _bytes = b64decode(b64, validate=True)
-
-    # Perform a basic validation to make sure that the result is a valid PDF file
-    # Be aware! The magic number (file signature) is not 100% reliable solution to validate PDF files
-    # Moreover, if you get Base64 from an untrusted source, you must sanitize the PDF contents
-    if _bytes[0:4] != b'%PDF':
-        raise ValueError('Missing the PDF file signature')
-
-    path_file = str(uuid.uuid1()) + filename + '.pdf'
-
-    # Write the PDF contents to a local file
-    f = open(path_file, 'wb')
-    f.write(_bytes)
-    f.close()
-
-    print(path_file)
+    file_path = save_file_into_server_from_request(request_json)
 
     pagination = {}
-    reader = PdfReader(path_file)
+    reader = PdfReader(file_path)
     number_of_pages = len(reader.pages)
 
     for page in range(number_of_pages):
@@ -56,7 +31,8 @@ def store():
         paginate = str(index_page)
         pagination[paginate] = page_content.replace('\n', ' ').strip()
 
-    os.remove(path_file)
+    # Clean up
+    delete_file_from_server(file_path)
 
     return {
         "data": {
@@ -65,6 +41,30 @@ def store():
             }
         }
     }
+
+
+@app.route('/api/v1/link/tools/tables-extraction', methods=['POST'])
+def extract_data_tables():
+    # if 'file' not in request.files:
+    #     return jsonify({'error': 'No file part'}), 400
+    #
+    # file = request.files['file']
+    # if file.filename == '':
+    #     return jsonify({'error': 'No selected file'}), 400
+
+    # Save the file to a temporary location
+    #file_path = save_file_into_server_from_request(request)
+    request_json = request.get_json()
+    file_path = save_file_into_server_from_request(request_json)
+
+    # Process the file
+    tables = extract_tables_from_pdf(file_path)
+    tables_json = convert_tables_to_json(tables)
+
+    # Clean up
+    delete_file_from_server(file_path)
+
+    return jsonify(tables_json)
 
 
 if __name__ == "__main__":

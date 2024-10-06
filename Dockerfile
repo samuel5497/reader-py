@@ -21,6 +21,9 @@ RUN apk add --no-cache \
     rm -r /root/.cache && \
     mkdir /app
 
+# Install OpenJDK 17
+RUN apk add --no-cache openjdk17-jdk
+
 # Copy the Nginx global conf
 COPY /app/nginx/nginx.conf /etc/nginx/
 # Copy the Flask Nginx site conf
@@ -32,7 +35,7 @@ COPY /app/conf/supervisord.conf /etc/supervisord.conf
 
 RUN chown -R nginx.nginx app
 
-# Add flask application into a app directory
+# Add flask application into a "app" directory
 COPY ./app/flask /app
 
 WORKDIR /app
