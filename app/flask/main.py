@@ -78,7 +78,7 @@ def join_pdfs():
     files = request_json['data']['files']
 
     output_filename = str(uuid.uuid1()) + '.pdf'
-    s3_file = '/cpa-link/pdf/unions/'+output_filename
+    s3_file = 'cpa-link/pdf/unions/'+output_filename
 
     merger = PdfWriter()
 
