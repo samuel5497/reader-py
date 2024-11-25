@@ -1,6 +1,10 @@
+import uuid
+from fileinput import filename
 from flask import Flask, jsonify, request
 from pypdf import PdfReader
-from tools.pdf_tools import extract_tables_from_pdf, convert_tables_to_json, save_file_into_server_from_request, delete_file_from_server
+from tools.pdf_tools import extract_tables_from_pdf, convert_tables_to_json, save_file_into_server_from_request
+from tools.pdf_tools import delete_file_from_server, download_file_from_s3, upload_file_to_s3
+from PyPDF2 import PdfWriter
 
 app = Flask(__name__)
 
@@ -65,6 +69,43 @@ def extract_data_tables():
     delete_file_from_server(file_path)
 
     return jsonify(tables_json)
+
+
+
+@app.route('/api/v1/link/tools/join-pdfs', methods=['POST'])
+def join_pdfs():
+    request_json = request.get_json()
+    files = request_json['data']['files']
+
+    output_filename = str(uuid.uuid1()) + '.pdf'
+    s3_file = '/cpa-link/pdf/unions/'+output_filename
+
+    merger = PdfWriter()
+
+    for file in files:
+        filename = str(uuid.uuid1()) + '.pdf'
+        download_file_from_s3(file, filename)
+        merger.append(filename)
+
+    merger.write(output_filename)
+    merger.close()
+
+    upload_file_to_s3(output_filename, s3_file)
+
+    # Clean up files
+    for filenames in files:
+        delete_file_from_server(filenames)
+
+    return {
+        "data": {
+            "file": {
+                "name": output_filename,
+                'mimeype': 'application/pdf',
+                'path_s3': s3_file
+            }
+        }
+    }
+
 
 
 if __name__ == "__main__":

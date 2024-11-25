@@ -1,4 +1,7 @@
+from fileinput import filename
+
 import pandas as pd
+from subprocess import check_output
 from tabula import read_pdf
 from base64 import b64decode
 import uuid
@@ -46,3 +49,11 @@ def save_file_into_server_from_request(request):
 
 def delete_file_from_server(path_file):
     os.remove(path_file)
+
+def download_file_from_s3(path_s3, filename):
+    command =  'aws s3 cp s3://cpa-procesos/'+ path_s3 +' ./'+filename
+    check_output(command, shell=True)
+
+def upload_file_to_s3(filename, s3_file):
+    command = 'aws s3 cp '+filename+' s3://cpa-procesos'+s3_file+' 2>&1'
+    check_output(command, shell=True)
