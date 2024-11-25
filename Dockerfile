@@ -21,6 +21,16 @@ RUN apk add --no-cache \
     rm -r /root/.cache && \
     mkdir /app
 
+# Add support to AWS CLI
+RUN apk add --no-cache \
+    py3-pip \
+    curl \
+    unzip
+
+RUN pip3 install awscli --upgrade
+
+RUN export PATH=$PATH:~/.local/bin
+
 # Install OpenJDK 17
 RUN apk add --no-cache openjdk17-jdk
 
