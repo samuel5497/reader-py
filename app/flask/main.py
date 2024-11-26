@@ -84,10 +84,6 @@ def join_pdfs():
 
     for file in files:
         path_s3 = file['path_s3']
-        print('')
-        print(file)
-        print(path_s3)
-        print('')
 
         filename = str(uuid.uuid1()) + '.pdf'
         new_files.append(filename)
