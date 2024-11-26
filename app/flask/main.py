@@ -71,7 +71,6 @@ def extract_data_tables():
     return jsonify(tables_json)
 
 
-
 @app.route('/api/v1/link/tools/join-pdfs', methods=['POST'])
 def join_pdfs():
     request_json = request.get_json()
@@ -87,7 +86,7 @@ def join_pdfs():
         # file = file['path_s3']
         filename = str(uuid.uuid1()) + '.pdf'
         new_files.append(filename)
-        download_file_from_s3(file, filename)
+        download_file_from_s3(file['path_s3'], filename)
         merger.append(filename)
 
     merger.write(output_filename)
