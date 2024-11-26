@@ -76,6 +76,7 @@ def extract_data_tables():
 def join_pdfs():
     request_json = request.get_json()
     files = request_json['data']['files']
+    new_files = []
 
     output_filename = str(uuid.uuid1()) + '.pdf'
     s3_file = 'cpa-link/pdf/unions/'+output_filename
@@ -85,6 +86,7 @@ def join_pdfs():
     for file in files:
         # file = file['path_s3']
         filename = str(uuid.uuid1()) + '.pdf'
+        new_files.append(filename)
         download_file_from_s3(file, filename)
         merger.append(filename)
 
@@ -94,8 +96,8 @@ def join_pdfs():
     upload_file_to_s3(output_filename, s3_file)
 
     # Clean up files
-    for filenames in files:
-        delete_file_from_server(filenames)
+    for new_file in new_files:
+        delete_file_from_server(new_file)
 
     return {
         "data": {
