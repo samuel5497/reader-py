@@ -83,10 +83,15 @@ def join_pdfs():
     merger = PdfWriter()
 
     for file in files:
-        # file = file['path_s3']
+        path_s3 = file['path_s3']
+        print('')
+        print(file)
+        print(path_s3)
+        print('')
+
         filename = str(uuid.uuid1()) + '.pdf'
         new_files.append(filename)
-        download_file_from_s3(file['path_s3'], filename)
+        download_file_from_s3(path_s3, filename)
         merger.append(filename)
 
     merger.write(output_filename)
