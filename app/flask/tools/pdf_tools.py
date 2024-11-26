@@ -55,5 +55,5 @@ def download_file_from_s3(path_s3, filename):
     check_output(command, shell=True)
 
 def upload_file_to_s3(filename, s3_file):
-    command = "aws s3 cp '"+filename+"' 's3://cpa-procesos/"+s3_file+' 2>&1'
+    command = "aws s3 cp '"+filename+"' 's3://cpa-procesos/"+s3_file+"' 2>&1"
     check_output(command, shell=True)
