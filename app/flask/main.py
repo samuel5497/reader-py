@@ -73,41 +73,44 @@ def extract_data_tables():
 
 @app.route('/api/v1/link/tools/join-pdfs', methods=['POST'])
 def join_pdfs():
-    request_json = request.get_json()
-    files = request_json['data']['files']
-    new_files = []
+    try:
+        request_json = request.get_json()
+        files = request_json['data']['files']
+        new_files = []
 
-    output_filename = str(uuid.uuid1()) + '.pdf'
-    s3_file = 'cpa-link/pdf/unions/'+output_filename
+        output_filename = str(uuid.uuid1()) + '.pdf'
+        s3_file = 'cpa-link/pdf/unions/'+output_filename
 
-    merger = PdfWriter()
+        merger = PdfWriter()
 
-    for file in files:
-        path_s3 = file['path_s3']
+        for file in files:
+            path_s3 = file['path_s3']
 
-        filename = str(uuid.uuid1()) + '.pdf'
-        new_files.append(filename)
-        download_file_from_s3(path_s3, filename)
-        merger.append(filename)
+            filename = str(uuid.uuid1()) + '.pdf'
+            new_files.append(filename)
+            download_file_from_s3(path_s3, filename)
+            merger.append(filename)
 
-    merger.write(output_filename)
-    merger.close()
+        merger.write(output_filename)
+        merger.close()
 
-    upload_file_to_s3(output_filename, s3_file)
+        upload_file_to_s3(output_filename, s3_file)
 
-    # Clean up files
-    for new_file in new_files:
-        delete_file_from_server(new_file)
+        # Clean up files
+        for new_file in new_files:
+            delete_file_from_server(new_file)
 
-    return {
-        "data": {
-            "file": {
-                "name": output_filename,
-                'mimeype': 'application/pdf',
-                'path_s3': s3_file
+        return {
+            "data": {
+                "file": {
+                    "name": output_filename,
+                    'mimeype': 'application/pdf',
+                    'path_s3': s3_file
+                }
             }
         }
-    }
+    except Exception as exception:
+        return jsonify({'error': str(exception)}), 500
 
 
 
