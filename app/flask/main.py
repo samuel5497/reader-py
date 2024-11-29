@@ -9,7 +9,7 @@ from PyPDF2 import PdfWriter
 
 
 logging.basicConfig(
-    filename='/app/logs/app-errors.log',
+    filename='/app/logs/errors.log',
     level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
