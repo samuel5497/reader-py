@@ -84,13 +84,20 @@ def join_pdfs():
 
         merger = PdfWriter()
 
+
         for file in files:
             path_s3 = file['path_s3']
+            try:
+                filename = str(uuid.uuid1()) + '.pdf'
+                new_files.append(filename)
+                download_file_from_s3(path_s3, filename)
+                merger.append(filename)
+            except Exception as exception:
+                return jsonify({
+                    'path_s3': path_s3,
+                    'error': str(exception)
+                }), 500
 
-            filename = str(uuid.uuid1()) + '.pdf'
-            new_files.append(filename)
-            download_file_from_s3(path_s3, filename)
-            merger.append(filename)
 
         merger.write(output_filename)
         merger.close()
