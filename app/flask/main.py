@@ -1,10 +1,18 @@
 import uuid
+import logging
 from fileinput import filename
 from flask import Flask, jsonify, request
 from pypdf import PdfReader
 from tools.pdf_tools import extract_tables_from_pdf, convert_tables_to_json, save_file_into_server_from_request
 from tools.pdf_tools import delete_file_from_server, download_file_from_s3, upload_file_to_s3
 from PyPDF2 import PdfWriter
+
+
+logging.basicConfig(
+    filename='flask-app-errors.log',
+    level=logging.ERROR,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 app = Flask(__name__)
 
@@ -110,6 +118,7 @@ def join_pdfs():
             }
         }
     except Exception as exception:
+        logging.exception("Error al procesar los archivos PDF")
         return jsonify({'error': str(exception)}), 500
 
 
