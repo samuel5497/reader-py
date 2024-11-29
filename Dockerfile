@@ -21,6 +21,8 @@ RUN apk add --no-cache \
     rm -r /root/.cache && \
     mkdir /app
 
+RUN mkdir -p "/var/logs/flask"
+
 # Add support to AWS CLI
 RUN apk add --no-cache \
     py3-pip \

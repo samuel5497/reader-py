@@ -9,7 +9,7 @@ from PyPDF2 import PdfWriter
 
 
 logging.basicConfig(
-    filename='flask-app-errors.log',
+    filename='/var/logs/flask/flask-app-errors.log',
     level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
