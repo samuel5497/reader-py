@@ -49,7 +49,7 @@ RUN chown -R nginx.nginx app
 
 # Add flask application into a "app" directory
 COPY ./app/flask /app
-COPY ./app/logs /app/logs
+COPY ./app/logs/app-errors.log /app/logs/errors.log
 
 WORKDIR /app
 
